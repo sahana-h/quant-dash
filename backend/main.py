@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from backend.services.stock_data import stock_data_service
+from strategies.strategy_manager import strategy_manager
 from datetime import datetime, timedelta
 import pandas as pd
 
@@ -60,5 +61,28 @@ async def get_live_price(symbol: str):
     try:
         price = stock_data_service.get_live_price(symbol.upper())
         return {"success": True, "symbol": symbol.upper(), "price": price}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/strategies")
+async def get_strategies():
+    """Get all available trading strategies"""
+    try:
+        strategies = strategy_manager.get_available_strategies()
+        return {"success": True, "strategies": strategies}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/backtest")
+async def run_backtest(symbol: str, strategy_id: str, start_date: str, end_date: str, initial_capital: float = 10000):
+    """Run a backtest for a specific strategy on historical data"""
+    try:
+        # Get historical data
+        data = stock_data_service.get_stock_data(symbol.upper(), start_date, end_date)
+        
+        # Run backtest
+        results = strategy_manager.run_backtest(strategy_id, data, initial_capital)
+        
+        return {"success": True, "results": results}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
