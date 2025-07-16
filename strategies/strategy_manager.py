@@ -5,6 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from typing import Dict, List, Any
 from strategies.implementations.moving_average_crossover import MovingAverageCrossover
 from strategies.implementations.rsi_strategy import RSIStrategy
+from strategies.implementations.macd_strategy import MACDStrategy
+from strategies.implementations.bollinger_bands_strategy import BollingerBandsStrategy
 
 class StrategyManager:
     """Manages all available trading strategies"""
@@ -17,9 +19,12 @@ class StrategyManager:
         """Load all available strategies"""
         # Moving Average Crossover
         self.strategies['moving_average_crossover'] = MovingAverageCrossover()
-        
         # RSI Strategy
         self.strategies['rsi_strategy'] = RSIStrategy()
+        # MACD Strategy
+        self.strategies['macd_strategy'] = MACDStrategy()
+        # Bollinger Bands Strategy
+        self.strategies['bollinger_bands_strategy'] = BollingerBandsStrategy()
     
     def get_available_strategies(self) -> List[Dict[str, Any]]:
         """Get list of all available strategies with their info"""

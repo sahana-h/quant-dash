@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 from typing import Dict, List, Tuple, Any
 from datetime import datetime
+import numpy as np
 
 class BaseStrategy(ABC):
     """Base class for all trading strategies"""
@@ -114,7 +115,25 @@ class BaseStrategy(ABC):
         rolling_max = portfolio_series.expanding().max()
         drawdown = ((portfolio_series - rolling_max) / rolling_max) * 100
         max_drawdown = drawdown.min()
-        
+
+        # --- Risk Metrics ---
+        # Daily returns
+        portfolio_series = portfolio_series.astype(float)
+        daily_returns = portfolio_series.pct_change().dropna()
+        # Sharpe Ratio (risk-free rate = 0)
+        sharpe_ratio = np.nan
+        if daily_returns.std() != 0 and len(daily_returns) > 1:
+            sharpe_ratio = (daily_returns.mean() / daily_returns.std()) * np.sqrt(252)
+        # Volatility (annualized)
+        volatility = daily_returns.std() * np.sqrt(252) if len(daily_returns) > 1 else np.nan
+        # Sortino Ratio (downside risk)
+        downside_returns = daily_returns[daily_returns < 0]
+        sortino_ratio = np.nan
+        if downside_returns.std() != 0 and len(daily_returns) > 1:
+            sortino_ratio = (daily_returns.mean() / downside_returns.std()) * np.sqrt(252)
+        # Calmar Ratio
+        calmar_ratio = (total_return / abs(max_drawdown)) if max_drawdown != 0 else np.nan
+
         return {
             'strategy_name': self.name,
             'initial_capital': initial_capital,
@@ -127,7 +146,11 @@ class BaseStrategy(ABC):
             'winning_trades': winning_trades,
             'trades': trades,
             'portfolio_values': portfolio_values,
-            'dates': [d.strftime('%Y-%m-%d') for d in dates]
+            'dates': [d.strftime('%Y-%m-%d') for d in dates],
+            'sharpe_ratio': sharpe_ratio,
+            'volatility': volatility,
+            'sortino_ratio': sortino_ratio,
+            'calmar_ratio': calmar_ratio
         }
     
     def get_parameters(self) -> Dict[str, Any]:

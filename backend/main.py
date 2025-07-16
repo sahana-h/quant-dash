@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from backend.services.stock_data import stock_data_service
@@ -74,15 +74,34 @@ async def get_strategies():
         raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/backtest")
-async def run_backtest(symbol: str, strategy_id: str, start_date: str, end_date: str, initial_capital: float = 10000):
-    """Run a backtest for a specific strategy on historical data"""
+async def run_backtest(
+    symbol: str,
+    strategy_id: str,
+    start_date: str,
+    end_date: str,
+    initial_capital: float = 10000,
+    request: Request = None
+):
     try:
+        # Get all query params as a dict
+        params = dict(request.query_params)
+        # Remove known params so only strategy params remain
+        for key in ["symbol", "strategy_id", "start_date", "end_date", "initial_capital"]:
+            params.pop(key, None)
+        # Convert numeric params to int/float as needed
+        for k, v in params.items():
+            try:
+                if '.' in v:
+                    params[k] = float(v)
+                else:
+                    params[k] = int(v)
+            except ValueError:
+                pass  # keep as string if not numeric
+
         # Get historical data
         data = stock_data_service.get_stock_data(symbol.upper(), start_date, end_date)
-        
         # Run backtest
-        results = strategy_manager.run_backtest(strategy_id, data, initial_capital)
-        
+        results = strategy_manager.run_backtest(strategy_id, data, initial_capital, **params)
         return {"success": True, "results": results}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
