@@ -2,7 +2,8 @@ import streamlit as st
 import requests
 from datetime import date
 
-API_URL = "http://localhost:8000"
+# API_URL = "http://localhost:8000"
+API_URL = "https://quant-dash-mwbx.onrender.com/"
 
 st.set_page_config(
     page_title="QuantDash",
