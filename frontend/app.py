@@ -5,13 +5,13 @@ from datetime import date
 # API_URL = "http://localhost:8000"
 API_URL = "https://quant-dash-mwbx.onrender.com"
 
-st.write("Backend API URL:", API_URL)
-try:
-    r = requests.get(f"{API_URL}/strategies", timeout=10)
-    st.write("Backend status code:", r.status_code)
-    st.write("Backend response:", r.text)
-except Exception as e:
-    st.write("Error contacting backend:", e)
+# st.write("Backend API URL:", API_URL)
+# try:
+#     r = requests.get(f"{API_URL}/strategies", timeout=10)
+#     st.write("Backend status code:", r.status_code)
+#     st.write("Backend response:", r.text)
+# except Exception as e:
+#     st.write("Error contacting backend:", e)
 
 st.set_page_config(
     page_title="QuantDash",
