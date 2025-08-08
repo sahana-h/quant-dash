@@ -1,10 +1,10 @@
-# QuantDash
+# Strategy Backtesting Dashboard
 
 This quant dashboard is full-stack trading strategy simulator and dashboard that lets users backtest technical trading strategies on real stock data, visualize performance, and understand risk—all through an interactive web app.
 
 
 ## Tech Stack
-- **Frontend:** Streamlit
+- **Frontend:** Streamlit (and Render)
 - **Backend:** FastAPI
 - **Data:** Yahoo Finance API (via yfinance)
 - **Database:** SQLite
